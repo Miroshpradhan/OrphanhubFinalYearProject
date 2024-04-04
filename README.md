@@ -1,4 +1,4 @@
-<h1>OrphanHub</h1>
+<h1>OrphanHub <img src="Orphanhub-main/public/orphanage_logo.png"  <img src="Orphanhub-main/public/orphanage_logo.png" width="75px" height="75px" style="border-radius: 50%;" ></h1>
 OrphanHub is a web-based system designed to manage orphanage functionalities efficiently. It provides a platform for orphanages to track donations, manage adoption request, adopter details,user and sponsor records, and budget allocation of  each day for the categories which are addable and  changeable by admin for Orphanages feasibility to allocate the donations. It also provides platform for users such as Donor,Sponsors,Adopter and give them the capability to donate to the orphanage, sponsor the children and also able to get the chance to adopt the child as admin will choose if their adoption details are valid and accept their adoption request for the child.It also allows the user to be able to search the child with the help of filters for age,gender etc.
 <h2>Technology Used</h2>
 
