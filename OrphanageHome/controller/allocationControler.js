@@ -56,6 +56,86 @@ const totalDonationDay = (total) => {
       }
 }
 
+const allocateDonation = (req, res) => {
+    pool.getConnection((err, connection) => {
+        if (err) {
+            return res.status(400).send({ msg: "connection error" });
+        }
+
+        //const currentDate = new Date().toISOString().split('T')[0];
+
+        // if current date is past day
+        connection.query(
+            'select  sum(amount) as totalAmount from donor where time = CURDATE();',
+            
+            async (err, dailyDonors) => {
+                if (err) {
+                    console.log(err);
+                    connection.release();
+                    return res.status(500).send({ msg: 'Error in fetching data' });
+                }
+
+                if (dailyDonors.length !== 1) {
+                    console.log('No donations for the current day');
+                    connection.release();
+                    return res.status(200).send({ msg: 'No donations for the current day' });
+                }
+
+                const totalDonationAmount = dailyDonors[0].totalAmount;
+                console.log(totalDonationAmount);
+              
+                connection.query(
+                    'SELECT name from allocatedonation',
+                    async (err, data) => {
+                        if (err) {
+                            console.log(err);
+                            connection.release();
+                            return res.status(500).send({ msg: 'Error in fetching data' });
+                        }
+
+                        const columnName = data.map(row => row.name);
+
+                        await connection.query('SELECT * FROM categories',(err, rows)=>{
+                            if (!Array.isArray(rows)) {
+                                console.log('Expected rows to be an array');
+                                connection.release();
+                                return res.status(500).send({ msg: 'Expected rows to be an array' });
+                              }
+
+                            const categories = rows.map(row => ({ name: row.name, weight: row.weight }));
+ 
+
+                            const allocation = {};
+                        let totalWeight = categories.reduce((acc, category) => acc + category.weight, 0);
+
+                        categories.forEach((category) => {
+                            allocation[category.name] = (totalDonationAmount * (category.weight / totalWeight));
+                            
+                        });
+                        const allocateValues = Object.entries(allocation).map(([name, amount]) => [name, amount]);
+                        
+                        const insertQuery = `INSERT INTO \`allocatedonation\` (name, amount) VALUES ?`;
+
+                        connection.query(insertQuery, [allocateValues], (error) => {
+                        if (error) {
+                            console.log(error);
+                            connection.release();
+                            return res.status(500).send({ msg: error });
+                        }
+                                            
+                        connection.release();
+                        // return res.status(200).send({ columnNameArray: columnNameArray, allocation: allocation });
+                           
+                    })    
+                    });
+                        
+                        
+                    }
+                );
+            }
+        );
+    });
+};
 
  
 const updateCat = () => {
